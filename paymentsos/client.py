@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import requests
 
@@ -18,8 +19,9 @@ ch.setFormatter(formatter)
 class Client(object):
     URL_BASE = 'https://api.paymentsos.com'
 
-    def __init__(self, app_id, private_key, api_version='1.2.0', test=False, debug=False):
+    def __init__(self, app_id, public_key, private_key, api_version='1.2.0', test=False, debug=False):
         self.app_id = app_id
+        self.public_key = public_key
         self.private_key = private_key
         self.api_version = api_version
         self.test = test
@@ -54,11 +56,9 @@ class Client(object):
 
     def _request(self, method, url, headers=None, **kwargs):
         _headers = {
-            'app_id': self.app_id,
-            'private_key': self.private_key,
             'api-version': self.api_version,
             'x-payments-os-env': 'test' if self.test else 'live',
-            'idempotency_key': '123',
+            'idempotency_key': uuid.uuid4().hex,
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         }
@@ -70,12 +70,16 @@ class Client(object):
         return self._parse(requests.request(method, url, headers=_headers, timeout=60, **kwargs))
 
     def _parse(self, response):
-        if 'Content-Type' in response.headers and 'application/json' in response.headers['Content-Type']:
+        status_code = response.status_code
+        content_type = response.headers.get('Content-Type', None)
+        request_id = response.headers.get('x-zooz-request-id', None)
+        if content_type and 'application/json' in content_type:
             r = response.json()
         else:
             if self.is_debug:
-                fmt = 'The response with status code ({}) is not JSON deserializable. Response: {}'
-                self.logger.warning(fmt.format(response.status_code, response.text))
+                fmt = 'The response with status code ({}) and request id ({}) is not JSON deserializable. Response: {}'
+                self.logger.warning(fmt.format(status_code, request_id, response.text))
 
-            r = response.text
+            return response.text
+
         return r
