@@ -99,3 +99,46 @@ class Payment(object):
             "statement_soft_descriptor": statement_soft_descriptor,
         }
         return self.client._post(self.client.URL_BASE + '/payments', json=payload, headers=headers)
+
+    def create_charge(self, payment_id, token, credit_card_cvv=None, user_agent=None, ip_address=None):
+        headers = {
+            'app_id': self.client.app_id,
+            'private_key': self.client.private_key,
+            'x-client-user-agent': user_agent,
+            'x-client-ip-address': ip_address,
+        }
+        payload = {
+            "payment_method": {
+                "type": "tokenized",
+                "token": token,
+                "credit_card_cvv": credit_card_cvv
+            }
+        }
+        return self.client._post(self.client.URL_BASE + '/payments/{}/charges'.format(payment_id), json=payload,
+                                 headers=headers)
+
+    def create_authorization(self, payment_id, token, credit_card_cvv=None, user_agent=None, ip_address=None):
+        headers = {
+            'app_id': self.client.app_id,
+            'private_key': self.client.private_key,
+            'x-client-user-agent': user_agent,
+            'x-client-ip-address': ip_address,
+        }
+        payload = {
+            "payment_method": {
+                "type": "tokenized",
+                "token": token,
+                "credit_card_cvv": credit_card_cvv
+            },
+            "reconciliation_id": "23434534534"
+        }
+
+        return self.client._post(self.client.URL_BASE + '/payments/{}/authorizations'.format(payment_id), json=payload,
+                                 headers=headers)
+
+    def create_capture(self, payment_id):
+        headers = {
+            'app_id': self.client.app_id,
+            'private_key': self.client.private_key,
+        }
+        return self.client._post(self.client.URL_BASE + '/payments/{}/captures'.format(payment_id), headers=headers)
