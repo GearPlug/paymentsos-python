@@ -142,3 +142,29 @@ class Payment(object):
             'private_key': self.client.private_key,
         }
         return self.client._post(self.client.URL_BASE + '/payments/{}/captures'.format(payment_id), headers=headers)
+
+    def create_customer(self, customer_reference, email):
+        headers = {
+            'app_id': self.client.app_id,
+            'private_key': self.client.private_key,
+        }
+        payload = {
+            "customer_reference": customer_reference,
+            "email": email
+        }
+        return self.client._post(self.client.URL_BASE + '/customers', json=payload, headers=headers)
+
+    def store_token(self, customer_id, token):
+        headers = {
+            'app_id': self.client.app_id,
+            'private_key': self.client.private_key,
+        }
+        return self.client._post(self.client.URL_BASE + '/customers/{}/payment-methods/{}'.format(customer_id, token),
+                                 headers=headers)
+
+    def retrieve_customer(self, customer_id):
+        headers = {
+            'app_id': self.client.app_id,
+            'private_key': self.client.private_key,
+        }
+        return self.client._post(self.client.URL_BASE + '/customers/{}'.format(customer_id), headers=headers)
