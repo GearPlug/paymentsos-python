@@ -3,7 +3,17 @@ import uuid
 
 import requests
 
+from paymentsos.authorizations import Authorization
+from paymentsos.captures import Capture
+from paymentsos.charges import Charge
+from paymentsos.credits import Credit
+from paymentsos.customers import Customer
+from paymentsos.payment_methods import PaymentMethod
 from paymentsos.payments import Payment
+from paymentsos.redirections import Redirection
+from paymentsos.refunds import Refund
+from paymentsos.tokens import Token
+from paymentsos.voids import Void
 
 fh = logging.FileHandler('spam.log')
 fh.setLevel(logging.DEBUG)
@@ -27,7 +37,17 @@ class Client(object):
         self.test = test
         self.debug = debug
 
+        self.authorizations = Authorization(self)
+        self.captures = Capture(self)
+        self.charges = Charge(self)
+        self.credits = Credit(self)
+        self.customers = Customer(self)
+        self.payment_methods = PaymentMethod(self)
         self.payments = Payment(self)
+        self.redirections = Redirection(self)
+        self.refunds = Refund(self)
+        self.tokens = Token(self)
+        self.voids = Void(self)
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -83,3 +103,16 @@ class Client(object):
             return response.text
 
         return r
+
+    def _get_public_headers(self):
+        headers = {
+            'public_key': self.public_key,
+        }
+        return headers
+
+    def _get_private_headers(self):
+        headers = {
+            'app_id': self.app_id,
+            'private_key': self.private_key,
+        }
+        return headers
