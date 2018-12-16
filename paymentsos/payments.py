@@ -41,11 +41,13 @@ class Payment(object):
             "additional_details": additional_details,
             "statement_soft_descriptor": statement_soft_descriptor,
         }
-        fmt = '/payments'
-        return self.client._post(self.client.URL_BASE + fmt, json=payload, headers=headers)
+        endpoint = '/payments'
+        return self.client._post(self.client.URL_BASE + endpoint, json=payload, headers=headers)
 
-    def retrieve_payment(self):
-        raise NotImplementedError
+    def retrieve_payment(self, *, payment_id, query_params=None):
+        headers = self.client._get_private_headers()
+        endpoint = '/payments/{}'.format(payment_id)
+        return self.client._get(self.client.URL_BASE + endpoint, headers=headers, params=query_params)
 
     def update_payment(self):
         raise NotImplementedError

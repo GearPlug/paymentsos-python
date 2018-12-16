@@ -16,11 +16,15 @@ class Charge(object):
             "reconciliation_id": reconciliation_id
         }
         payload.update(kwargs)
-        fmt = '/payments/{}/charges'
-        return self.client._post(self.client.URL_BASE + fmt.format(payment_id), json=payload, headers=headers)
+        endpoint = '/payments/{}/charges'.format(payment_id)
+        return self.client._post(self.client.URL_BASE + endpoint, json=payload, headers=headers)
 
-    def retrieve_all_charges(self):
-        raise NotImplementedError
+    def retrieve_all_charges(self, *, payment_id, query_params=None):
+        headers = self.client._get_private_headers()
+        endpoint = '/payments/{}/charges'.format(payment_id)
+        return self.client._get(self.client.URL_BASE + endpoint, headers=headers, params=query_params)
 
-    def retrieve_charge(self):
-        raise NotImplementedError
+    def retrieve_charge(self, *, payment_id, charge_id, query_params=None):
+        headers = self.client._get_private_headers()
+        endpoint = '/payments/{}/charges/{}'.format(payment_id, charge_id)
+        return self.client._get(self.client.URL_BASE + endpoint, headers=headers, params=query_params)

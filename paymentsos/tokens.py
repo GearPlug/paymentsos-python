@@ -23,8 +23,6 @@ class Token(object):
         Returns:
 
         """
-        if not isinstance(billing_address, dict):
-            raise Exception
         headers = self.client._get_public_headers()
         payload = {
             "token_type": token_type,
@@ -36,8 +34,8 @@ class Token(object):
             "billing_address": billing_address,
             "additional_details": additional_details,
         }
-        fmt = '/tokens'
-        return self.client._post(self.client.URL_BASE + fmt, json=payload, headers=headers)
+        endpoint = '/tokens'
+        return self.client._post(self.client.URL_BASE + endpoint, json=payload, headers=headers)
 
     def retrieve_token(self, token):
         """
@@ -51,5 +49,5 @@ class Token(object):
 
         """
         headers = self.client._get_private_headers()
-        fmt = '/tokens/{}'
-        return self.client._get(self.client.URL_BASE + fmt.format(token), headers=headers)
+        endpoint = '/tokens/{}'.format(token)
+        return self.client._get(self.client.URL_BASE + endpoint, headers=headers)

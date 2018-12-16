@@ -85,6 +85,10 @@ class Client(object):
         if headers:
             _headers.update(headers)
 
+        # Do not send None values
+        if 'json' in kwargs:
+            kwargs['json'] = {k: v for k, v in kwargs['json'].items() if v is not None}
+
         if self.is_debug:
             self.logger.debug('{} {} {} {}'.format(method, url, headers, kwargs))
         return self._parse(requests.request(method, url, headers=_headers, timeout=60, **kwargs))
