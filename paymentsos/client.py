@@ -15,6 +15,13 @@ from paymentsos.refunds import Refund
 from paymentsos.tokens import Token
 from paymentsos.voids import Void
 
+try:
+    from django_requests_logger.callbacks import logger as django_requests_logger
+
+    is_django_requests_logger_installed = True
+except:
+    is_django_requests_logger_installed = False
+
 fh = logging.FileHandler('spam.log')
 fh.setLevel(logging.DEBUG)
 
@@ -29,13 +36,15 @@ ch.setFormatter(formatter)
 class Client(object):
     URL_BASE = 'https://api.paymentsos.com'
 
-    def __init__(self, app_id, public_key, private_key, api_version='1.2.0', test=False, debug=False):
+    def __init__(self, app_id, public_key, private_key, api_version='1.2.0', test=False, debug=False,
+                 requests_logger=False):
         self.app_id = app_id
         self.public_key = public_key
         self.private_key = private_key
         self.api_version = api_version
         self.test = test
         self.debug = debug
+        self.requests_logger = requests_logger
 
         self.authorizations = Authorization(self)
         self.captures = Capture(self)
@@ -91,6 +100,12 @@ class Client(object):
 
         if self.is_debug:
             self.logger.debug('{} {} {} {}'.format(method, url, headers, kwargs))
+
+        if self.requests_logger:
+            if is_django_requests_logger_installed:
+                kwargs['hooks'] = {'response': django_requests_logger}
+            else:
+                raise Exception('django_requests_logger is not installed')
         return self._parse(requests.request(method, url, headers=_headers, timeout=60, **kwargs))
 
     def _parse(self, response):
